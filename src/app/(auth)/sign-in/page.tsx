@@ -1,29 +1,35 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import api from "@/api";
 import Link from "next/link";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { loginUser } from "@/store/slices/userSlice";
 
-export default function Register() {
-	const [username, setUsername] = useState("");
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
+export default function SignInPage() {
+	const dispatch = useAppDispatch();
 	const router = useRouter();
+	const [username, setUsername] = useState("");
+	const [password, setPassword] = useState("");
+	const [error, setError] = useState("");
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		try {
-			await api.post("/users/register", { username, email, password });
-			router.push("/auth/login");
-		} catch (error) {
-			console.error("Registration failed", error);
+		setError("");
+		const response = await dispatch(loginUser({ username, password }));
+		console.log(response);
+
+		if (response?.error) {
+			setError(response.payload as string);
+			return;
 		}
+
+		router.push("/good-deeds"); // Перенаправление на главную страницу после успешного входа
 	};
 
 	return (
 		<div className="min-h-screen flex flex-col justify-center items-center">
 			<form className="flex flex-col bg-white p-6 rounded shadow-md" onSubmit={handleSubmit}>
-				<h2 className="text-2xl mb-4">Register</h2>
+				<h2 className="text-2xl mb-4">Login</h2>
 				<input
 					className="mb-2 p-2 border"
 					type="text"
@@ -31,7 +37,6 @@ export default function Register() {
 					value={username}
 					onChange={(e) => setUsername(e.target.value)}
 				/>
-				<input className="mb-2 p-2 border" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
 				<input
 					className="mb-2 p-2 border"
 					type="password"
@@ -39,14 +44,15 @@ export default function Register() {
 					value={password}
 					onChange={(e) => setPassword(e.target.value)}
 				/>
+				<p className="text-red-600">{error}</p>
 				<button className="bg-blue-500 text-white p-2 rounded" type="submit">
-					Register
+					Login
 				</button>
 			</form>
 			<p className="mt-4">
-				Already registered?{" "}
-				<Link href="/auth/login" className="text-blue-500">
-					Log in here
+				Not registered yet?{" "}
+				<Link href="/sign-up" className="text-blue-500">
+					Register here
 				</Link>
 			</p>
 		</div>

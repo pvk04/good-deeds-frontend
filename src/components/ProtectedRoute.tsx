@@ -2,20 +2,17 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-interface ProtectedRouteProps {
-	children: React.ReactNode;
-}
-
-export default function ProtectedRoute({ children }: ProtectedRouteProps) {
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 	const router = useRouter();
 
 	useEffect(() => {
 		const token = localStorage.getItem("token");
-		console.log(token);
 		if (!token) {
-			router.push("/auth/register");
+			router.replace("/sign-in");
 		}
 	}, [router]);
 
 	return <>{children}</>;
-}
+};
+
+export default ProtectedRoute;
