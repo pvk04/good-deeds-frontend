@@ -36,6 +36,7 @@ export default function UserProfilePage() {
 	const [newUsername, setNewUsername] = useState("");
 	const [newEmail, setNewEmail] = useState("");
 	const [errors, setErrors] = useState<Errors>({});
+	const [friendError, setFriendError] = useState("");
 
 	useEffect(() => {
 		const fetchProfile = async () => {
@@ -121,14 +122,15 @@ export default function UserProfilePage() {
 	};
 
 	const handleAddFriend = async () => {
+		setFriendError("");
 		try {
 			const response = await api.post("/friends", { username: newFriendUsername });
-			console.log(response);
 
 			setOutgoingRequests([...outgoingRequests, response.data]);
 			setNewFriendUsername("");
 		} catch (error) {
 			console.error("Error adding friend:", error);
+			setFriendError(error.response?.data?.message);
 		}
 	};
 
@@ -226,6 +228,7 @@ export default function UserProfilePage() {
 						value={newFriendUsername}
 						onChange={(e) => setNewFriendUsername(e.target.value)}
 					/>
+					<p className="text-red-600">{friendError}</p>
 					<button className="bg-green-500 text-white p-2 rounded w-full" onClick={handleAddFriend}>
 						Add Friend
 					</button>

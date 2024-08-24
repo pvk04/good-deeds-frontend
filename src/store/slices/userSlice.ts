@@ -83,7 +83,6 @@ export const userSlice = createSlice({
 			})
 			.addCase(loginUser.fulfilled, (state, action: PayloadAction<{ user: UserState["user"]; token: string }>) => {
 				const { token, user } = action.payload;
-				console.log({token, user});
 				
 				localStorage.setItem("token", JSON.stringify(token));
 				state.user = user;

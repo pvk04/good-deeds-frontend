@@ -16,7 +16,6 @@ export default function SignInPage() {
 		e.preventDefault();
 		setError("");
 		const response = await dispatch(loginUser({ username, password }));
-		console.log(response);
 
 		if (response?.error) {
 			setError(response.payload as string);

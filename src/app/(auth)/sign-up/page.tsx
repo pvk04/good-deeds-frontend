@@ -22,7 +22,6 @@ export default function SignUpPage() {
 		if (!isValid) return;
 
 		const response = await dispatch(registerUser({ username, email, password }));
-		console.log(response);
 
 		if (response?.error) {
 			setError(response.payload as string);

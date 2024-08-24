@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import api from "@/api";
+import GoodDeedItem from "@/components/GoodDeedItem";
 
 interface GoodDeed {
 	id: number;
@@ -16,6 +17,7 @@ export default function GoodDeeds() {
 	const [goodDeeds, setGoodDeeds] = useState<GoodDeed[]>([]);
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
+	const [error, setError] = useState("");
 
 	const fetchGoodDeeds = useCallback(async () => {
 		try {
@@ -32,9 +34,17 @@ export default function GoodDeeds() {
 
 	const handleAddDeed = async (e: React.FormEvent) => {
 		e.preventDefault();
+		setError("");
+
+		const isTitleValid = !!title.trim();
+		if (!isTitleValid) {
+			setError("Title must not be empty");
+			return;
+		}
+
 		try {
 			const response = await api.post("/good-deeds", { title, description });
-			setGoodDeeds((prevDeeds) => [...prevDeeds, response.data]);
+			setGoodDeeds((prevDeeds) => [response.data, ...prevDeeds]);
 			setTitle("");
 			setDescription("");
 		} catch (error) {
@@ -55,12 +65,6 @@ export default function GoodDeeds() {
 		} catch (error) {
 			console.error("Error updating good deed:", error);
 		}
-	};
-
-	const handleUpdateDeed = (e: React.FormEvent, deed: GoodDeed) => {
-		e.preventDefault();
-
-		updateDeed(deed);
 	};
 
 	const handleDeleteDeed = async (id: number) => {
@@ -113,57 +117,22 @@ export default function GoodDeeds() {
 					value={description}
 					onChange={(e) => setDescription(e.target.value)}
 				/>
+				<p className="text-red-600">{error}</p>
 				<button className="bg-blue-500 text-white p-2 rounded w-full" type="submit">
 					Add Good Deed
 				</button>
 			</form>
 			<ul className="w-full">
 				{goodDeeds.map((deed) => (
-					<li key={deed.id} className="border p-4 mb-2 rounded">
-						{deed.editing ? (
-							<form onSubmit={(e) => handleUpdateDeed(e, deed)}>
-								<input
-									className="mb-2 p-2 border rounded w-full"
-									type="text"
-									value={deed.editingTitle}
-									onChange={(e) => handleInputChange(deed.id, "editingTitle", e.target.value)}
-								/>
-								<input
-									className="mb-2 p-2 border rounded w-full"
-									type="text"
-									value={deed.editingDescription}
-									onChange={(e) => handleInputChange(deed.id, "editingDescription", e.target.value)}
-								/>
-								<div className="flex justify-between">
-									<button className="bg-green-500 text-white p-2 rounded" type="submit">
-										Save
-									</button>
-									<button className="bg-gray-500 text-white p-2 rounded" onClick={() => toggleEditDeed(deed.id)}>
-										Cancel
-									</button>
-								</div>
-							</form>
-						) : (
-							<div>
-								<p className="text-lg font-semibold">{deed.title}</p>
-								<p className="text-gray-700">{deed.description}</p>
-								<p className={`text-sm ${deed.completed ? "text-green-500" : "text-red-500"}`}>
-									{deed.completed ? "Completed" : "Not completed yet"}
-								</p>
-								<div className="flex gap-3 mt-2">
-									<button className="bg-yellow-500 text-white p-2 rounded" onClick={() => handleCompleteToggle(deed)}>
-										{deed.completed ? "Mark as Incomplete" : "Mark as Completed"}
-									</button>
-									<button className="bg-blue-500 text-white p-2 rounded" onClick={() => toggleEditDeed(deed.id)}>
-										Edit
-									</button>
-									<button className="bg-red-500 text-white p-2 rounded" onClick={() => handleDeleteDeed(deed.id)}>
-										Delete
-									</button>
-								</div>
-							</div>
-						)}
-					</li>
+					<GoodDeedItem
+						key={deed.id}
+						deed={deed}
+						onCompleteToggle={handleCompleteToggle}
+						onDelete={handleDeleteDeed}
+						onUpdate={updateDeed}
+						onToggleEdit={toggleEditDeed}
+						onInputChange={handleInputChange}
+					/>
 				))}
 			</ul>
 		</div>

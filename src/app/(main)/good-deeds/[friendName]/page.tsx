@@ -22,7 +22,7 @@ export default function FriendGoodDeedsPage({ params }: { params: { friendName: 
 				setGoodDeeds(deedsResponse.data);
 			} catch (error) {
 				console.error("Error checking friendship or fetching good deeds:", error);
-				router.replace("/profile")
+				router.replace("/profile");
 			}
 		};
 
